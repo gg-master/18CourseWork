@@ -4,6 +4,7 @@
 	\param[out] funcDefinition указатель на структуру, в которой отобразится определение искомой функции.
 	\return 1 - успешное завершение поиска. 0 - неуспешное.
 */  
+bool findFunctionDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1], Text* funcDefinition)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 bool findFunctionDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1], Text* funcDefinition)
