@@ -98,40 +98,40 @@ int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_L
 	}
 }
 
-bool isLineEndOfDefinition(const char line[])
+bool findBodyOfDefinition(const Text programText, const int headOfDefinitionIndex, Text* funcBody)
 {
-	return strstr(line, "}") != NULL;
+	return true;
 }
+
 
 bool findFunctionDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1], Text* funcDefinition)
 {
-	bool isFound = false; // Считать, что искомая функция не найдена
 	funcDefinition->countLines = 0; // Обнулить выходной параметр с определением искомой функии
-	// Для каждой строки текста, пока не найдена искомая функция
-	for (int i = 0; i < programText.countLines && !isFound; i++)
-	{
-		// Если отсутсвуют строки в выходном параметре с определением искомой функции
-		if (funcDefinition->countLines == 0)
-		{
-			//isWordInLine(programText.ptrOnLines[i], targetFuncName)
-			if (isLineHeadOfDefinition((char*)programText.ptrOnLines[i], targetFuncName))
-			{
-				funcDefinition->ptrOnLines[i] = programText.ptrOnLines[i];
-				funcDefinition->countLines++;
-			}
-		}
-		else
-		{
-			funcDefinition->ptrOnLines[i] = programText.ptrOnLines[i];
-			funcDefinition->countLines++;
-			// Если строка содержит конец определения функции
-			if (isLineEndOfDefinition((char*)programText.ptrOnLines[i]))
-			{
-				isFound = true;
-			}
-		}
-	}
-	return isFound;
+	
+	// Найти индекс строки с заголовком искомой фунцкии
+	int headOfDefinitionIndex = findHeadOfDefinition(programText, targetFuncName);
+	
+	// Если не нашли заголовок искомой функции вернуть неуспешное значение
+	if (headOfDefinitionIndex == -1) return false;
+
+	// Записать строку с заголовком функции в возвращаемую структуру с определением функции
+	funcDefinition->ptrOnLines[0] = programText.ptrOnLines[headOfDefinitionIndex];
+	funcDefinition->countLines++; // Увеличить счетчик строк с определением функции на единицу
+
+	Text funcBody = {}; // Считать параметр с телом искомой функции пустым
+
+	// Найти тело искомой функции 
+	bool isFound = findBodyOfDefinition(programText, headOfDefinitionIndex, &funcBody);
+	// Если не нашли тело искомой функции вернуть неиспешное значение
+	if (!isFound) return false;
+	
+	// Увеличить счетчик строк с определением на количество строк в теле искомой фукнции
+	funcDefinition->countLines += funcBody.countLines;
+	// Записать строки с телом функции с параметр с определнием функции
+	for (int i = 0; i < funcBody.countLines; i++)
+		funcDefinition->ptrOnLines[i + 1] = funcBody.ptrOnLines[i];
+
+	return true;
 }
 
 
