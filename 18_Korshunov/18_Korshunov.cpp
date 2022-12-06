@@ -6,6 +6,9 @@
 
 
 /*! ”далить перечисленные символы слева от строки
+	\param[in, out] string строка из которой удал€ют крайние левые символы
+	\param[in] stripBy спсок удал€емых символов слева от строки
+	\return указатель на обновленную строку.
 */
 char* stripLeft(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
 {
@@ -13,6 +16,9 @@ char* stripLeft(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
 }
 
 /*! ”далить перечисленные символы справа от строки
+	\param[in, out] string строка из которой удал€ют крайние правые символы
+	\param[in] stripBy спсок удал€емых символов справа от строки
+	\return указатель на обновленную строку.
 */
 char* stripRight(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
 {
@@ -25,6 +31,9 @@ char* stripRight(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
 }
 
 /* ”далить перечисленные символы и слева и справа
+	\param[in] string строка из которой удал€ют крайние правые и левые символы
+	\param[in] stripBy спсок удал€емых символов справа от строки
+	\return указатель на обновленную строку.
 */
 char* strip(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
 {
@@ -32,6 +41,8 @@ char* strip(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
 }
 
 /* ”далить однострочный комментарий из строки
+	\param[in, out] string строка, из которой удал€етс€ однострочный комментарий
+	\return указатель на обновленную строку.
 */
 char* delOneLineComment(char* string)
 {
@@ -68,29 +79,39 @@ bool isWordInLine(const char* line, const char* word)
 //	}
 //	return (ptr_s == NULL) ? false : true;
 //}
-
+/* ќпределить, €вл€етс€ ли строка заголовком в определении функции.
+	\param[in] string анализируема€ строка
+	\param[in] funcName им€ искомой функции.
+	\return указатель на обновленную строку.
+*/
 bool isLineHeadOfDefinition(const char* string, const char* funcName)
 {
-	char tmp[MAX_LINE_LENGTH + 1] = ""; 
-	strcpy(tmp, string);
-	char* tmp_cleared = strip(delOneLineComment(tmp));
-	//if (isCompareLineWithPattern(tmp_cleared, )
-	char* ptrOnFuncNameInStr = strstr(tmp_cleared, funcName);
-	if (*(tmp_cleared + strlen(tmp_cleared) -1) == ')' && *(ptrOnFuncNameInStr + strlen(funcName)) == '(' && tmp_cleared != ptrOnFuncNameInStr)
-	{
-		// логика определени€ 
+	char clearedStr[MAX_LINE_LENGTH + 1] = ""; strcpy(clearedStr, string);
+	char fName[MAX_LINE_LENGTH + 1] = " "; strcat(fName, funcName); 
+
+	char* tmp_cleared = strip(delOneLineComment(clearedStr));
+
+	char* ptrOnFuncNameInStr = strstr(tmp_cleared, fName);
+	if (ptrOnFuncNameInStr++ == NULL) return false;
+
+	char tmp_s[MAX_LINE_LENGTH + 1] = ""; strcpy(tmp_s, ptrOnFuncNameInStr);
+	char* ptrOnOpenBr = strchr(tmp_s, '(');
+	*ptrOnOpenBr = '\0';
+	ptrOnOpenBr = stripRight(tmp_s);
+	
+	if (*(tmp_cleared + strlen(tmp_cleared) -1) == ')' && strcmp(tmp_s, funcName) == 0 && tmp_cleared != ptrOnFuncNameInStr)
 		return true;
-	}
 	return false;
 }
 
 int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1])
 {
+	char fName[MAX_LINE_LENGTH + 1] = " "; strcat(fName, targetFuncName);
 	// ƒл€ каждой строки текста, пока не найдена искома€ функци€
 	for (int i = 0; i < programText.countLines; i++)
 	{
 		//
-		if (isWordInLine(programText.ptrOnLines[i], targetFuncName) && 
+		if (isWordInLine(programText.ptrOnLines[i], fName) &&
 			isLineHeadOfDefinition(programText.ptrOnLines[i], targetFuncName))
 		{
 			return i;
@@ -137,11 +158,11 @@ bool findFunctionDefinition(const Text programText, const char targetFuncName[MA
 
 int main()
 {
-	char s[] = "void name((), , ()=)";
-	//bool p = isCompareLineWithPattern(s, "name(,)#");
-	bool p = isLineHeadOfDefinition(s, "name");
-	printf("%d\n", p);
-	/*char inputText[][MAX_LINE_LENGTH+1] =
+	//char s[] = "name((), , ()=)";
+	////bool p = isCompareLineWithPattern(s, "name(,)#");
+	//bool p = isLineHeadOfDefinition(s, "name");
+	//printf("%d\n", p);
+	char inputText[][MAX_LINE_LENGTH+1] =
 	{
 		"int main(a)",
 		"{",
@@ -160,5 +181,5 @@ int main()
 	for (int i = 0; i < funcDefinition.countLines; i++)
 	{
 		printf("%s\n", funcDefinition.ptrOnLines[i]);
-	}*/
+	}
 }
