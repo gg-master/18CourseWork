@@ -4,126 +4,131 @@
 
 #pragma warning(disable : 4996)
 
-
-/*! Удалить перечисленные символы слева от строки
-	\param[in, out] string строка из которой удаляют крайние левые символы
-	\param[in] stripBy спсок удаляемых символов слева от строки
-	\return указатель на обновленную строку.
-*/
-char* stripLeft(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
+char* stripLeft(char* string, const char stripBy[])
 {
-	return string + strspn(string, stripBy) - 1;
+	if (string == NULL || strlen(string) == 0) return string;
+	return string + strspn(string, stripBy);
 }
 
-/*! Удалить перечисленные символы справа от строки
-	\param[in, out] string строка из которой удаляют крайние правые символы
-	\param[in] stripBy спсок удаляемых символов справа от строки
-	\return указатель на обновленную строку.
-*/
-char* stripRight(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
+char* stripRight(char* string, const char stripBy[])
 {
-	int i = 0;
-	while (*(string + i) != '\0') i++;
-	if (i > 0)
-		while (i-- > 0 && (strchr(stripBy, (*(string + i))) != NULL))
-			*(string + i) = '\0';
+	if (string == NULL || strlen(string) == 0) return string;
+	int i = strlen(string);
+	while (i-- > 0 && (strchr(stripBy, (*(string + i))) != NULL))
+		*(string + i) = '\0';
 	return string;
 }
 
-/* Удалить перечисленные символы и слева и справа
-	\param[in] string строка из которой удаляют крайние правые и левые символы
-	\param[in] stripBy спсок удаляемых символов справа от строки
-	\return указатель на обновленную строку.
-*/
-char* strip(char* string, const char stripBy[]="\\t\\n\\v\\f\\r ")
+char* strip(char* string, const char stripBy[])
 {
 	return stripLeft(stripRight(string, stripBy), stripBy);
 }
 
-/* Удалить однострочный комментарий из строки
-	\param[in, out] string строка, из которой удаляется однострочный комментарий
-	\return указатель на обновленную строку.
-*/
 char* delOneLineComment(char* string)
 {
+	if (string == NULL || strlen(string) == 0) return string;
 	char* result = strstr(string, "//");
 	if (result != NULL) *result = '\0';
 	return string;
 }
-
 
 bool isWordInLine(const char* line, const char* word)
 {
 	return strstr(line, word) != NULL;
 }
 
-//bool isCompareLineWithPattern(const char* string, const char* pattern)
-//{
-//	char tmp_s[MAX_LINE_LENGTH+1] = "", tmp_p[MAX_LINE_LENGTH + 1] = "";
-//	char* ptr_s = strcpy(tmp_s, string);
-//	char* ptr_p = strcpy(tmp_p, pattern);
-//	
-//	char prev_p = NULL;
-//	while (ptr_s != NULL && *ptr_p != '\0')
-//	{
-//		if (*ptr_p == '#')
-//		{
-//			if (prev_p == NULL && (*tmp_s != *(ptr_p + 1))) return false;
-//			if (prev_p != NULL && *(ptr_s - 1) != prev_p && *ptr_s != *(ptr_p + 1)) return false;
-//			ptr_p++;
-//		}
-//		ptr_s = strchr(ptr_s, *ptr_p); 
-//		if (ptr_s != NULL) ptr_s++;
-//		prev_p = *ptr_p; ptr_p++;
-//		
-//	}
-//	return (ptr_s == NULL) ? false : true;
-//}
-/* Определить, является ли строка заголовком в определении функции.
-	\param[in] string анализируемая строка
-	\param[in] funcName имя искомой функции.
-	\return указатель на обновленную строку.
-*/
+bool startsWith(const char* string, const char* startsWithStr)
+{
+	return strncmp(startsWithStr, string, strlen(startsWithStr)) == 0;
+}
+
+bool endsWith(const char* string, const char* endsWithStr)
+{
+	return strncmp(endsWithStr, string + (strlen(string) - strlen(endsWithStr)), strlen(endsWithStr)) == 0;
+}
+
+bool checkStrAfterKeyWord(const char* string, const char* keyWord, const char* startsWithStr, const char* endsWithStr)
+{
+	if (string == NULL || strlen(string) == 0) return false;
+
+	char tmpStr[MAX_LINE_LENGTH + 1] = ""; strcpy(tmpStr, string);
+	char* strAfterKeyWord = strip((char*)strstr(tmpStr, keyWord) + strlen(keyWord));
+	return startsWith(strAfterKeyWord, startsWithStr) && endsWith(strAfterKeyWord, endsWithStr);
+}
+
 bool isLineHeadOfDefinition(const char* string, const char* funcName)
 {
+	if (string == NULL) return false;
+
+	// Сохраняем копию строки в отдельный массив
 	char clearedStr[MAX_LINE_LENGTH + 1] = ""; strcpy(clearedStr, string);
-	char fName[MAX_LINE_LENGTH + 1] = " "; strcat(fName, funcName); 
+	char* ptrClearedStr = strip(delOneLineComment(clearedStr)); // Очищаем копию строки от белых символов в начале и в конце
 
-	char* tmp_cleared = strip(delOneLineComment(clearedStr));
+	// Создаем копию названия искомой функции с начальным пробелом
+	char fName[MAX_LINE_LENGTH + 1] = " "; strcat(fName, funcName);
 
-	char* ptrOnFuncNameInStr = strstr(tmp_cleared, fName);
-	if (ptrOnFuncNameInStr++ == NULL) return false;
+	// Проверяем, что название искомой фукнции имеется в строке
+	bool isFuncNameInStr = isWordInLine(clearedStr, fName);
+	if (!isFuncNameInStr) return false;
 
-	char tmp_s[MAX_LINE_LENGTH + 1] = ""; strcpy(tmp_s, ptrOnFuncNameInStr);
-	char* ptrOnOpenBr = strchr(tmp_s, '(');
-	*ptrOnOpenBr = '\0';
-	ptrOnOpenBr = stripRight(tmp_s);
-	
-	if (*(tmp_cleared + strlen(tmp_cleared) -1) == ')' && strcmp(tmp_s, funcName) == 0 && tmp_cleared != ptrOnFuncNameInStr)
-		return true;
-	return false;
+	// Проверяем, что строка не начинается с имени функции
+	bool isStrStartsWithFuncName = !startsWith(ptrClearedStr, funcName);
+
+	// Проверяем, что строка оканчивается закрывающей скобкой
+	bool isStrEndsWithClosingBracket = endsWith(ptrClearedStr, ")");
+
+	// Проверяем, что подстрка после имени функции начинается открывающей скобкой и заканчивается закрывающей скобкой
+	bool isStrStartedWOpeningBrAndEndsWClosingBr = checkStrAfterKeyWord(clearedStr, funcName, "(", ")");
+
+	return isFuncNameInStr && isStrStartsWithFuncName &&
+		   isStrEndsWithClosingBracket && isStrStartedWOpeningBrAndEndsWClosingBr;
 }
 
 int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1])
 {
-	char fName[MAX_LINE_LENGTH + 1] = " "; strcat(fName, targetFuncName);
 	// Для каждой строки текста, пока не найдена искомая функция
 	for (int i = 0; i < programText.countLines; i++)
 	{
-		//
-		if (isWordInLine(programText.ptrOnLines[i], fName) &&
-			isLineHeadOfDefinition(programText.ptrOnLines[i], targetFuncName))
-		{
-			return i;
-		}
+		// Вернуть идекс строки, если она является заголовком определения
+		if (isLineHeadOfDefinition(programText.ptrOnLines[i], targetFuncName)) return i;
 	}
+	return -1;
 }
 
 bool findBodyOfDefinition(const Text programText, const int headOfDefinitionIndex, Text* funcBody)
 {
-	return true;
-}
+	funcBody->countLines = 0;
+	bool isFound = false;
 
+	int pairBrCount = 0, firstBrIndex = -1, endBrIndex = -1;
+
+	char tmpStr[MAX_LINE_LENGTH + 1] = "";
+	char* ptrTmpStr = tmpStr;
+
+	// Начиная со строки с заголовком определения
+	for (int i = headOfDefinitionIndex; i < programText.countLines && !isFound; i++)
+	{
+		strcpy(tmpStr, programText.ptrOnLines[i]);
+		ptrTmpStr = strip(delOneLineComment(tmpStr));
+
+		if (startsWith(ptrTmpStr, "{") && endsWith(ptrTmpStr, "{"))
+		{
+			pairBrCount++;
+			if (firstBrIndex == -1) firstBrIndex = i;
+		}
+		else if (startsWith(ptrTmpStr, "}") && endsWith(ptrTmpStr, "}"))
+		{
+			pairBrCount--;
+			endBrIndex = i;
+			if (pairBrCount == 0) isFound = true;
+		}
+		if (firstBrIndex != -1)
+		{
+			funcBody->ptrOnLines[funcBody->countLines++] = programText.ptrOnLines[i];
+		}
+	}
+	return isFound;
+}
 
 bool findFunctionDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1], Text* funcDefinition)
 {
@@ -155,29 +160,41 @@ bool findFunctionDefinition(const Text programText, const char targetFuncName[MA
 	return true;
 }
 
-
 int main()
 {
-	//char s[] = "name((), , ()=)";
+	//char s[] = "s name((), , ()=)";
 	////bool p = isCompareLineWithPattern(s, "name(,)#");
 	//bool p = isLineHeadOfDefinition(s, "name");
-	//printf("%d\n", p);
+	////bool p = endsWith(s, ");");
+	//printf("%d", p);
 	char inputText[][MAX_LINE_LENGTH+1] =
 	{
-		"int main(a)",
+		"int someFunction(int c)",
+		"{",
+		"    for(int i = 0; i < 10; i++)",
+		"    {",
+		"        if (c > i)",
+		"        {",
+		"            while(i < c)",
+		"            {",
+		"                i++;",
+		"            }",
+		"         }",
+		"    }",
+		"}",
+		"int main()",
 		"{",
 		"}",
 	};
-	char targetFuncName[81] = "main";
+	char targetFuncName[81] = "someFunction";
 
-	Text programText = { {}, 3 };
+	Text programText = { {}, 16 };
 	for (int i = 0; i < programText.countLines; i++)
 		programText.ptrOnLines[i] = (char*)inputText[i];
 
 	Text funcDefinition = {};
 
 	bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
-	printf("%d\n", resOfSearch);
 	for (int i = 0; i < funcDefinition.countLines; i++)
 	{
 		printf("%s\n", funcDefinition.ptrOnLines[i]);

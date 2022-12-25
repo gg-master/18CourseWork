@@ -15,6 +15,12 @@ bool compareStructText(Text firstText, Text secondText)
 	return true;
 }
 
+void fillText(Text* destination, char source[][MAX_LINE_LENGTH + 1])
+{
+	for (int i = 0; i < destination->countLines; i++)
+		destination->ptrOnLines[i] = (char*)source[i];
+}
+
 namespace TestfindFunctionDefinition 
 {
 	TEST_CLASS(TestfindFunctionDefinition)
@@ -26,10 +32,14 @@ namespace TestfindFunctionDefinition
 				{
 					"int main()",
 					"{",
-					"}"
+					"	return 0;",
+					"}",
 				};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**) inputText, 3};
+
+			Text programText = { {}, 4 };
+			fillText(&programText, inputText);
+
 			Text funcDefinition = {};
 			
 			Text exp_funcDefinition = {};
@@ -51,13 +61,19 @@ namespace TestfindFunctionDefinition
 				"}",
 				"int main()",
 				"{",
+				"	return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = {(char **) inputText, 8};
-			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 5 };
+			Text programText = { {}, 9};
+			fillText(&programText, inputText);
+
+			Text funcDefinition = {};
+			
+			Text exp_funcDefinition = { {}, 5 };
+			fillText(&exp_funcDefinition, inputText);
+
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -69,24 +85,30 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int a)",
+				"int someFunctionsomeFunctionOne(int arg1, double arg2)",
 				"{",
+				"	return 0;",
 				"}",
-				"int someFunction1(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
+				"	return 0;",
 				"}",
-				"int someFunctionOne(int a)",
+				"int someFunction1(int arg1, double arg2)",
 				"{",
+				"	return 0;",
 				"}",
 				"int main()",
 				"{",
+				"	return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 12};
+			Text programText = { {}, 16 }; fillText(&programText, inputText);
+
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**) inputText, 3};
+			Text exp_funcDefinition = { {}, 4}; fillText(&exp_funcDefinition, inputText + 4);
+
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -101,13 +123,16 @@ namespace TestfindFunctionDefinition
 				"int someFunction(int);",
 				"int main()",
 				"{",
+				"	return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			struct Text programText = { (char**)inputText, 4 };
+			struct Text programText = { {}, 5 };
+			fillText(&programText, inputText);
+
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = {};
+			Text exp_funcDefinition = { {}, 0 };
 			bool exp_resOfSearch = false;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -119,19 +144,25 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int);",
+				"int someFunction(int arg1, double arg2);",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
+				"    int c = arg1 + arg2;",
+				"// Комментарий",
+				"    return c;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 7 };
+			Text programText = { {}, 11}; fillText(&programText, inputText);
+
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = {(char**) inputText + 4, 3};
+			Text exp_funcDefinition = { {}, 6}; fillText(&exp_funcDefinition, inputText + 5);
+
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -146,14 +177,16 @@ namespace TestfindFunctionDefinition
 				"int main()",
 				"{",
 				"    int a = 0;",
-				"    int b = someFunction(a);",
+				"    int b = someFunction(a, 0.1);",
+				"	 return 0;"
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			struct Text programText = { (char**)inputText, 5 };
+			struct Text programText = { {}, 6 }; fillText(&programText, inputText);
+
 			struct Text funcDefinition = {};
 
-			Text exp_funcDefinition = {};
+			Text exp_funcDefinition = { {}, 0 };
 			bool exp_resOfSearch = false;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -165,20 +198,25 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
+				"    int c = arg1 + arg2;",
+				"// Комментарий",
+				"    return c;",
 				"}",
 				"int main()",
 				"{",
 				"   int a = 0;",
-				"   int b = someFunction(a);",
+				"   int b = someFunction(a, 0.1);",
+				"   return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 8 };
+			Text programText = { {}, 12}; fillText(&programText, inputText);
+
 			Text funcDefinition= {};
 
-			Text exp_funcDefinition = {};
+			Text exp_funcDefinition = { {}, 6 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -193,17 +231,25 @@ namespace TestfindFunctionDefinition
 				"int main()",
 				"{",
 				"   int a = 0;",
-				"   int b = someFunction(a);",
+				"   int b = someFunction(a, 0.1);",
+				"   return 0;",
 				"}",
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
+				"    int c = arg1 + arg2;",
+				"// Комментарий",
+				"    return c;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 8 };
+			Text programText = { {}, 12};
+			fillText(&programText, inputText);
+
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = {(char**) inputText + 5, 3};
+			Text exp_funcDefinition = { {}, 6 };
+			fillText(&exp_funcDefinition, inputText + 6);
+
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -218,15 +264,16 @@ namespace TestfindFunctionDefinition
 				"int main()",
 				"{",
 				"   int a = count(\"some string\");",
-				"   int b = someFunction(a);",
+				"   int b = someFunction(a, 0.1);",
+				"   return 0;",
 				"}",
 				"int count(char str[])",
 				"{",
-				"   return someFunction(someFunction(0));",
+				"   return someFunction(someFunction(0, 0.0), 1.1);",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 9 };
+			Text programText = { {}, 10 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
 			Text exp_funcDefinition = {};
@@ -241,24 +288,28 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
+				"    int c = arg1 + arg2;",
+				"// Комментарий",
+				"    return c;",
 				"}",
 				"int main()",
 				"{",
 				"   int a = count(\"some string\");",
-				"   int b = someFunction(a);",
+				"   int b = someFunction(a, 0.1);",
+				"   return 0;",
 				"}",
 				"int count(char str[])",
 				"{",
-				"   return someFunction(someFunction(0));",
+				"   return someFunction(someFunction(0, 0.0), 1.1);",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 12 };
+			Text programText = { {}, 16 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = {(char**) inputText, 3};
+			Text exp_funcDefinition = { {}, 6 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -273,21 +324,26 @@ namespace TestfindFunctionDefinition
 				"int main()",
 				"{",
 				"   int a = count(\"some string\");",
-				"   int b = someFunction(a);",
+				"   int b = someFunction(a, 1.1);",
+				"   return 0;",
 				"}",
 				"int count(char str[])",
 				"{",
-				"   return someFunction(someFunction(0));",
+				"   return someFunction(someFunction(0, 0.1), 1.1);",
 				"}",
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
+				"    int c = arg1 + arg2;",
+				"// Комментарий",
+				"    return c;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 12 };
+			Text programText = { {}, 16 }; fillText(&programText, inputText);
+
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText+9, 3 };
+			Text exp_funcDefinition = { {}, 6 }; fillText(&exp_funcDefinition, inputText + 10);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -299,15 +355,19 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"// int someFuntion(int a)",
+				"// int someFunction(int arg1, double arg2)",
 				"// {",
+				"//    int c = arg1 + arg2;",
+				"// Комментарий",
+				"//    return c;",
 				"// }",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 6 };
+			Text programText = { {}, 10 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
 			Text exp_funcDefinition = {};
@@ -322,21 +382,23 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
-				"// int c;",
-				"// doSmth();",
+				"//    int c = arg1 + arg2;",
+				"// Комментарий",
+				"//    return c;",
 				"//}",
 				"}",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 9 };
+			Text programText = { {}, 11}; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 6 };
+			Text exp_funcDefinition = { {}, 7 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -351,10 +413,11 @@ namespace TestfindFunctionDefinition
 				"int main()",
 				"{",
 				"   int someFunction = 0;",
+				"   return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 4 };
+			Text programText = { {}, 5}; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
 			Text exp_funcDefinition = {};
@@ -369,7 +432,7 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
 				"",
 				"",
@@ -377,13 +440,14 @@ namespace TestfindFunctionDefinition
 				"}",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 9 };
+			Text programText = { {} , 10 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 6 };
+			Text exp_funcDefinition = { {}, 6 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -395,7 +459,7 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
 				"    int c = 0;",
 				"    doSmth(c);",
@@ -403,13 +467,14 @@ namespace TestfindFunctionDefinition
 				"}",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 9 };
+			Text programText = { {}, 10 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 6 };
+			Text exp_funcDefinition = { {}, 6 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -421,7 +486,7 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
 				"",
 				"//  doSmth(c);",
@@ -429,18 +494,19 @@ namespace TestfindFunctionDefinition
 				"",
 				"//  doSmth(c);",
 				"",
-				"// ������ �����������",
+				"// просто комментарий",
 				"",
 				"}",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 14 };
+			Text programText = { {}, 15 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 11 };
+			Text exp_funcDefinition = { {}, 11 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -452,26 +518,27 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int a)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
 				"    int c = 0;",
 				"//  doSmth(c);",
 				"",
-				"// ������ �����������",
+				"// просто комментарий",
 				"",
 				"    c = 1 + 3;",
-				"// ��� �����������",
+				"// еще комментарий",
 				"    return c;",
 				"}",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 14 };
+			Text programText = { {}, 15 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 11 };
+			Text exp_funcDefinition = { {}, 11 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -483,29 +550,30 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int c)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
 				"    for(int i = 0; i < 10; i++)",
 				"    {",
 				"    }",
-				"    if (c > i)",
+				"    if (arg1 > i)",
 				"    {",
 				"        return 1;",
 				"    }",
 				"    else",
 				"    {",
-				"        return c;",
+				"        return arg1;",
 				"    }",
 				"}",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 17 };
+			Text programText = { {}, 18 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 14 };
+			Text exp_funcDefinition = { {}, 14 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -517,13 +585,13 @@ namespace TestfindFunctionDefinition
 		{
 			char inputText[][MAX_LINE_LENGTH + 1] =
 			{
-				"int someFunction(int c)",
+				"int someFunction(int arg1, double arg2)",
 				"{",
 				"    for(int i = 0; i < 10; i++)",
 				"    {",
-				"        if (c > i)",
+				"        if (arg1 > i)",
 				"        {",
-				"            while(i < c)",
+				"            while(i < arg1)",
 				"            {",
 				"                i++;",
 				"            }",
@@ -532,13 +600,14 @@ namespace TestfindFunctionDefinition
 				"}",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 16 };
+			Text programText = { {}, 17 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 13 };
+			Text exp_funcDefinition = { {}, 13 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
@@ -557,13 +626,14 @@ namespace TestfindFunctionDefinition
 				"}",
 				"int main()",
 				"{",
+				"return 0;",
 				"}",
 			};
 			char targetFuncName[81] = "someFunction";
-			Text programText = { (char**)inputText, 8 };
+			Text programText = { {}, 9 }; fillText(&programText, inputText);
 			Text funcDefinition = {};
 
-			Text exp_funcDefinition = { (char**)inputText, 5 };
+			Text exp_funcDefinition = { {}, 5 }; fillText(&exp_funcDefinition, inputText);
 			bool exp_resOfSearch = true;
 
 			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);

@@ -21,3 +21,49 @@ struct Text {
 	\return 1 - успешное завершение поиска. 0 - неуспешное.
 */
 bool findFunctionDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH+1], Text*  funcDefinition);
+
+/*! Удалить перечисленные символы слева от строки
+	\param[in, out] string строка из которой удаляют крайние левые символы
+	\param[in] stripBy спсок удаляемых символов слева от строки
+	\return указатель на обновленную строку.
+*/
+char* stripLeft(char* string, const char stripBy[] = " \t\n\v\f\r");
+
+/*! Удалить перечисленные символы справа от строки
+	\param[in, out] string строка из которой удаляют крайние правые символы
+	\param[in] stripBy спсок удаляемых символов справа от строки
+	\return указатель на обновленную строку.
+*/
+char* stripRight(char* string, const char stripBy[] = " \t\n\v\f\r");
+
+/* Удалить перечисленные символы и слева и справа
+	\param[in] string строка из которой удаляют крайние правые и левые символы
+	\param[in] stripBy спсок удаляемых символов справа от строки
+	\return указатель на обновленную строку.
+*/
+char* strip(char* string, const char stripBy[] = " \t\n\v\f\r");
+
+/* Удалить однострочный комментарий из строки
+	\param[in, out] string строка, из которой удаляется однострочный комментарий
+	\return указатель на обновленную строку.
+*/
+char* delOneLineComment(char* string);
+
+
+bool isWordInLine(const char* line, const char* word);
+
+/* Определить, является ли строка заголовком в определении функции.
+	\param[in] string анализируемая строка
+	\param[in] funcName имя искомой функции.
+	\return флаг, является ли строка заголовком в определении функции.
+*/
+bool isLineHeadOfDefinition(const char* string, const char* funcName);
+
+/* Найти заголовок определния искомой функции.
+	\param[in] programText анализируемая строка
+	\param[in] funcName имя искомой функции.
+	\return флаг, является ли строка заголовком в определении функции.
+*/
+int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1]);
+
+bool findBodyOfDefinition(const Text programText, const int headOfDefinitionIndex, Text* funcBody);
