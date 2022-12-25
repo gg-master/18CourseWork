@@ -49,8 +49,37 @@ char* strip(char* string, const char stripBy[] = " \t\n\v\f\r");
 */
 char* delOneLineComment(char* string);
 
-
+/* Определить, имеется ли слово в строке.
+	\param[in] line - строка в которой ведется поиск слова.
+	\param[in] word - слово, которое ищется в строке.
+	\return флаг, имеется ли слово в строке.
+*/
 bool isWordInLine(const char* line, const char* word);
+
+/* Определить, начинается ли строка с указаной подстроки.
+	\param[in] string - анализируемая строка.
+	\param[in] startsWithStr - подстрока, с которой должная начинаться строка.
+	\return флаг, начинается ли анализируемая строка с подстроки.
+*/
+bool startsWith(const char* string, const char* startsWithStr);
+
+/* Определить, заканчивается ли строка с указаной подстроки.
+	\param[in] string - анализируемая строка.
+	\param[in] endsWithStr - подстрока, которой должная заканчиваться строка.
+	\return флаг, заканчивается ли анализируемая строка подстрокой.
+*/
+bool endsWith(const char* string, const char* endsWithStr);
+
+/* Проверить, с каких подстрок начинается и заканчивается строка после ключевого слова. 
+	\param[in] string - анализируемая строка с ключевым словом.
+	\param[in] keyWord - ключевое слово, после которого будет происходить анализ строки.
+	\param[in] startsWithStr - подстрока, с которой должная начинаться строка после ключевого слова. 
+	Не учитываются белые разделители.
+	\param[in] endsWithStr - подстрока, которой должная заканчиваться строка после ключевого слова.
+	Не учитываются белые разделители.
+	\return флаг, начинается ли с подстроки и заканчивается ли подстрокой анализируемая строка после ключевого слова.
+*/
+bool checkStrAfterKeyWord(const char* string, const char* keyWord, const char* startsWithStr, const char* endsWithStr);
 
 /* Определить, является ли строка заголовком в определении функции.
 	\param[in] string анализируемая строка
@@ -60,10 +89,16 @@ bool isWordInLine(const char* line, const char* word);
 bool isLineHeadOfDefinition(const char* string, const char* funcName);
 
 /* Найти заголовок определния искомой функции.
-	\param[in] programText анализируемая строка
-	\param[in] funcName имя искомой функции.
-	\return флаг, является ли строка заголовком в определении функции.
+	\param[in] programText текст, в котором ведется поиск заголовка.
+	\param[in] targetFuncName имя искомой функции.
+	\return индекс строки с заголовком искомой функции. -1 если не найдено.
 */
 int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1]);
 
+/* Найти тело определения искомой функции.
+	\param[in] programText анализируемая строка
+	\param[in] headOfDefinitionIndex - индекс строки с заголовком определения функции.
+	\param[out] funcBody структура, в которой сохранится тело определния искомой функции.
+	\return удалось ли найти тело определения функции.
+*/
 bool findBodyOfDefinition(const Text programText, const int headOfDefinitionIndex, Text* funcBody);
