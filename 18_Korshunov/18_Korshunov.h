@@ -70,7 +70,7 @@ bool startsWith(const char* string, const char* startsWithStr);
 */
 bool endsWith(const char* string, const char* endsWithStr);
 
-/* Проверить, с каких подстрок начинается и заканчивается строка после ключевого слова. 
+/* Проверить, начинается ли подстрока после ключевого слова с указанных начальных и конечных подстрок.
 	\param[in] string - анализируемая строка с ключевым словом.
 	\param[in] keyWord - ключевое слово, после которого будет происходить анализ строки.
 	\param[in] startsWithStr - подстрока, с которой должная начинаться строка после ключевого слова. 
@@ -101,4 +101,4 @@ int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_L
 	\param[out] funcBody структура, в которой сохранится тело определния искомой функции.
 	\return удалось ли найти тело определения функции.
 */
-bool findBodyOfDefinition(const Text programText, const int headOfDefinitionIndex, Text* funcBody);
+bool findBodyOfDefinition(const Text programText, int headOfDefinitionIndex, Text* funcBody);

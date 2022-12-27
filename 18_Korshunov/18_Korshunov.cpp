@@ -14,7 +14,7 @@ char* stripRight(char* string, const char stripBy[])
 {
 	if (string == NULL || strlen(string) == 0) return string;
 	int i = strlen(string);
-	while (i-- > 0 && (strchr(stripBy, (*(string + i))) != NULL))
+	while (i-- > 0 && (strchr(stripBy, *(string + i)) != NULL))
 		*(string + i) = '\0';
 	return string;
 }
@@ -52,7 +52,11 @@ bool checkStrAfterKeyWord(const char* string, const char* keyWord, const char* s
 	if (string == NULL || strlen(string) == 0) return false;
 
 	char tmpStr[MAX_LINE_LENGTH + 1] = ""; strcpy(tmpStr, string);
-	char* strAfterKeyWord = strip((char*)strstr(tmpStr, keyWord) + strlen(keyWord));
+	char* ptrOnKeyWord = strstr(tmpStr, keyWord);
+	// Если ключевого слова нет в строке
+	if (ptrOnKeyWord == NULL) return false;
+
+	char* strAfterKeyWord = strip(ptrOnKeyWord + strlen(keyWord));
 	return startsWith(strAfterKeyWord, startsWithStr) && endsWith(strAfterKeyWord, endsWithStr);
 }
 
@@ -97,6 +101,8 @@ int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_L
 
 bool findBodyOfDefinition(const Text programText, const int headOfDefinitionIndex, Text* funcBody)
 {
+	if (headOfDefinitionIndex < 0) return false;
+
 	funcBody->countLines = 0;
 	bool isFound = false;
 
@@ -162,20 +168,15 @@ bool findFunctionDefinition(const Text programText, const char targetFuncName[MA
 
 int main()
 {
-	//char s[] = "s name((), , ()=)";
-	////bool p = isCompareLineWithPattern(s, "name(,)#");
-	//bool p = isLineHeadOfDefinition(s, "name");
-	////bool p = endsWith(s, ");");
-	//printf("%d", p);
 	char inputText[][MAX_LINE_LENGTH+1] =
 	{
-		"int someFunction(int c)",
+		"int someFunction(int arg1, double arg2)",
 		"{",
 		"    for(int i = 0; i < 10; i++)",
 		"    {",
-		"        if (c > i)",
+		"        if (arg1 > i)",
 		"        {",
-		"            while(i < c)",
+		"            while(i < arg1)",
 		"            {",
 		"                i++;",
 		"            }",
@@ -195,8 +196,31 @@ int main()
 	Text funcDefinition = {};
 
 	bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
-	for (int i = 0; i < funcDefinition.countLines; i++)
+	
+	if (!resOfSearch)
+	{
+		printf("no function define");
+		return 0;
+	}
+	char tmp[MAX_LINE_LENGTH + 1] = ""; char* ptrTmp = tmp;
+	for (int i = 2; i < funcDefinition.countLines - 1; i++)
+	{
+		strcpy(tmp, funcDefinition.ptrOnLines[i]);
+		ptrTmp = strip(tmp);
+		if (strlen(ptrTmp) == 0)
+		{
+			printf("no solution");
+			return 0;
+		}
+	}
+	if (funcDefinition.countLines == 3)
+	{
+		printf("no solution");
+		return 0;
+	}
+	for (int i = 1; i < funcDefinition.countLines; i++)
 	{
 		printf("%s\n", funcDefinition.ptrOnLines[i]);
 	}
+	return 0;
 }
