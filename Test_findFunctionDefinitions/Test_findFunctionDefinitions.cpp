@@ -641,5 +641,26 @@ namespace TestfindFunctionDefinition
 			Assert::AreEqual(exp_resOfSearch, resOfSearch);
 			Assert::IsTrue(compareStructText(exp_funcDefinition, funcDefinition));
 		}
+		TEST_METHOD(callOfFunctionSameAsHeadOfDefinition)
+		{
+			char inputText[][MAX_LINE_LENGTH + 1] =
+			{
+				"int main()",
+				"{",
+				"    if(!someFunction()) return 0;",
+				"}",
+			};
+			char targetFuncName[81] = "someFunction";
+			Text programText = { {}, 4 }; fillText(&programText, inputText);
+			Text funcDefinition = {};
+
+			Text exp_funcDefinition = {}; fillText(&exp_funcDefinition, inputText);
+			bool exp_resOfSearch = false;
+
+			bool resOfSearch = findFunctionDefinition(programText, targetFuncName, &funcDefinition);
+
+			Assert::AreEqual(exp_resOfSearch, resOfSearch);
+			Assert::IsTrue(compareStructText(exp_funcDefinition, funcDefinition));
+		}
 	};
 }

@@ -70,6 +70,15 @@ bool startsWith(const char* string, const char* startsWithStr);
 */
 bool endsWith(const char* string, const char* endsWithStr);
 
+/*
+* Разделяет строку на подстроки по указанным разделителям.
+* \param [in] string - строка, разбиваемая на подстроки.
+* \param [out] subStrings - массив, в который будут скопированы выделенные подстроки.
+* \param[in] splitBy спсок символов, выступающих в качетсве разделителей между подстроками.
+* \return количество выделенных подстрок из строки.
+*/
+int split(const char* string, char subStrings[][MAX_LINE_LENGTH + 1], const char splitBy[] = " \t\n\v\f\r");
+
 /* Проверить, начинается ли подстрока после ключевого слова с указанных начальных и конечных подстрок.
 	\param[in] string - анализируемая строка с ключевым словом.
 	\param[in] keyWord - ключевое слово, после которого будет происходить анализ строки.

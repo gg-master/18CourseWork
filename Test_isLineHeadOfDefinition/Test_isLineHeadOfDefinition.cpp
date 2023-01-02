@@ -137,5 +137,14 @@ namespace TestisLineHeadOfDefinition
 			bool res = isLineHeadOfDefinition(inputStr, funcName);
 			Assert::AreEqual(expRes, res);
 		}
+		TEST_METHOD(callOfFunctionSameAsHeadOfDefinition)
+		{
+			char inputStr[] = "while(someFunction()) return 0;";
+			char funcName[] = "someFunction";
+
+			bool expRes = false;
+			bool res = isLineHeadOfDefinition(inputStr, funcName);
+			Assert::AreEqual(expRes, res);
+		}
 	};
 }

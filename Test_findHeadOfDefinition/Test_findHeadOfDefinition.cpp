@@ -371,5 +371,22 @@ namespace TestfindHeadOfDefinition
 
 			Assert::AreEqual(exp_resOfSearch, resOfSearch);
 		}
+		TEST_METHOD(callOfFunctionSameAsHeadOfDefinition)
+		{
+			char inputText[][MAX_LINE_LENGTH + 1] =
+			{
+				"int main()",
+				"{",
+				"    if(!someFunction()) return 0;",
+				"}",
+			};
+			char targetFuncName[81] = "someFunction";
+			Text programText = { {}, 4 }; fillText(&programText, inputText);
+
+			int exp_resOfSearch = -1;
+			int resOfSearch = findHeadOfDefinition(programText, targetFuncName);
+
+			Assert::AreEqual(exp_resOfSearch, resOfSearch);
+		}
 	};
 }
