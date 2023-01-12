@@ -18,9 +18,9 @@ char* stripRight(char* string, const char stripBy[])
 	if (string == NULL || strlen(string) == 0) return string;
 
 	// Переместить терминальный ноль влево, пока последний смовл строки входит в перечисление
-	int i = strlen(string);
-	while (i-- > 0 && (strchr(stripBy, *(string + i)) != NULL))
-		*(string + i) = '\0';
+	int strLength = strlen(string);
+	while (strLength-- > 0 && (strchr(stripBy, *(string + strLength)) != NULL))
+		*(string + strLength) = '\0';
 
 	// Вернуть указатель на обновленную строку
 	return string;
@@ -28,6 +28,8 @@ char* stripRight(char* string, const char stripBy[])
 
 char* strip(char* string, const char stripBy[])
 {
+	// Вернуть указатель на строку, из которой сначала удалили справа символы, входящие в список удаляемых символов, 
+	// а потом слева символы, входящие в список удаляемых символов
 	return stripLeft(stripRight(string, stripBy), stripBy);
 }
 
@@ -37,37 +39,31 @@ char* delOneLineComment(char* string)
 	if (string == NULL || strlen(string) == 0) return string;
 
 	// Получить указатель на положение первого символа однострочного комментария в строке
-	char* result = strstr(string, "//");
+	char* ptrOnSymbol = strstr(string, "//");
 
 	// Если символ однострочного комментария имеется в строке, то заменить его терминальным нулем.
-	if (result != NULL) *result = '\0';
+	if (ptrOnSymbol != NULL) *ptrOnSymbol = '\0';
 
 	// Вернуть указатель на обновленную строку
 	return string;
 }
 
-bool isWordInLine(const char* line, const char* word)
-{
-	// Вернуть истину или ложь, если слово имеется в строке и наоборот.
-	return strstr(line, word) != NULL;
-}
-
 bool startsWith(const char* string, const char* startsWithStr)
 {
 	// Получить N - кол-во символов в подстроке.
-	size_t lenOfstartsWithStr = strlen(startsWithStr);
+	size_t lenOfStartsWithStr = strlen(startsWithStr);
 	// Вернуть истину, если все символы подстроки совпали с первыми N символами строки 
 	// или ложь, если какой-либо символы подстроки не совпал с первыми N символами строки.
-	return strncmp(startsWithStr, string, lenOfstartsWithStr) == 0;
+	return strncmp(startsWithStr, string, lenOfStartsWithStr) == 0;
 }
 
 bool endsWith(const char* string, const char* endsWithStr)
 {
 	// Получить N - кол-во символов в подстроке.
-	size_t lenOfstartsWithStr = strlen(endsWithStr);
+	size_t lenOfEndsWithStr = strlen(endsWithStr);
 	// Вернуть истину, если все символы подстроки совпали с последними N символами строки 
 	// или ложь, если какой-либо символы подстроки не совпал с последними N символами строки.
-	return strncmp(endsWithStr, string + (strlen(string) - lenOfstartsWithStr), lenOfstartsWithStr) == 0;
+	return strncmp(endsWithStr, string + (strlen(string) - lenOfEndsWithStr), lenOfEndsWithStr) == 0;
 }
 
 int split(const char* string, char subStrings[][MAX_LINE_LENGTH + 1], const char splitBy[])
@@ -149,7 +145,7 @@ bool isLineHeadOfDefinition(const char* string, const char* funcName)
 
 	// Проверить, что первая открывюащая скобка в строке стоит после имени функции
 	// .. если подстрока после имени функции начинается с открывающей скобки и заканчивается закрывающей скобкой
-	if (isStrStartedWOpeningBrAndEndsWClosingBr) // TODO занести в трассировку ошибок
+	if (isStrStartedWOpeningBrAndEndsWClosingBr)
 	{
 		// вернуть ложь, если имеются другие открывающие скобки перед именем функции
 		if (strstr(clearedStr, funcName) > strchr(clearedStr, '(')) return false;
@@ -162,7 +158,6 @@ bool isLineHeadOfDefinition(const char* string, const char* funcName)
 
 int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1])
 {
-	//return 0; // для тестирования с заглушками
 	// Для каждой строки текста, пока не найдена искомая функция
 	for (int i = 0; i < programText.countLines; i++)
 	{
@@ -175,27 +170,16 @@ int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_L
 
 bool findBodyOfDefinition(const Text programText, const int headOfDefinitionIndex, Text* funcBody)
 {
-	/*if (headOfDefinitionIndex == 0) // для тестирования с заглушками
-	{
-		funcBody->countLines = 4;
-		for (int i = headOfDefinitionIndex + 1; i < 5; i++)
-		{
-			funcBody->ptrOnLines[i-1] = programText.ptrOnLines[i];
-		}
-		return true;
-	}
-	return false;*/
-
 	// Вернуть ложь, если заголовок определения не найден.
 	if (headOfDefinitionIndex < 0) return false;
 
-	// Обнулить кол-во линиий в выходном параметре с телом функции.
+	// Обнулить кол-во линий в выходном параметре с телом функции.
 	funcBody->countLines = 0;
 
 	// Считать, что тело не найдено
 	bool isFound = false;
 
-	// Обнулить счетчик пар открывающийх и закрывающих скобок
+	// Обнулить счетчик пар открывающих  и закрывающих скобок
 	int pairBrCount = 0;
 
 	// Считать, что первая открывающая скобка и последняя закрывающая скобка не найдена.
@@ -211,7 +195,7 @@ bool findBodyOfDefinition(const Text programText, const int headOfDefinitionInde
 		// Скопировать строку текста во временную переменную.
 		strcpy(tmpStr, programText.ptrOnLines[i]);
 
-		// Очистить временнную строку от однострочного комментария и белых разделителей в начале и в конце строки.
+		// Очистить временную строку от однострочного комментария и белых разделителей в начале и в конце строки.
 		ptrTmpStr = strip(delOneLineComment(tmpStr));
 
 		// Если временная строка и начинается и заканчивается открывающей скобкой.
@@ -220,7 +204,7 @@ bool findBodyOfDefinition(const Text programText, const int headOfDefinitionInde
 			// Увеличить счетчик пар скобок на 1 элемент.
 			pairBrCount++;
 
-			// Если первая открывающая скобка не найдена, то установить индекс первой октрывающей скобки равный индексу обрабатываемой строки
+			// Если первая открывающая скобка не найдена, то установить индекс первой открывающей скобки равный индексу обрабатываемой строки
 			if (firstBrIndex == -1) firstBrIndex = i;
 		}
 		// Если временная строка и начинается и заканчивается закрывающей скобкой.
@@ -229,12 +213,12 @@ bool findBodyOfDefinition(const Text programText, const int headOfDefinitionInde
 			// Уменьшить счетчик пар скобок на 1 элемент
 			pairBrCount--;
 			
-			// Если счетчик пар равен нулю, значит нашли последнюю закрывающюю скобку
+			// Если счетчик пар равен нулю, значит нашли последнюю закрывающую скобку
 			if (pairBrCount == 0)
 			{
 				// Установить индекс последней закрывающей скобки равный индексу обрабатываемой строки
 				endBrIndex = i;
-				// Считать, что тело искомой функции найденл
+				// Считать, что тело искомой функции найдено
 				isFound = true;
 			}
 		}
@@ -259,25 +243,26 @@ bool findFunctionDefinition(const Text programText, const char targetFuncName[MA
 	// Если не нашли заголовок искомой функции вернуть неуспешное значение
 	if (headOfDefinitionIndex == -1) return false;
 
-	// Записать строку с заголовком функции в возвращаемую структуру с определением функции
+	// Записать заголовок в опредление функции
+	//..Записать строку с заголовком функции в возвращаемую структуру с определением функции
 	funcDefinition->ptrOnLines[0] = programText.ptrOnLines[headOfDefinitionIndex];
-
-	// Увеличить счетчик строк с определением функции на единицу
+	// ..Увеличить счетчик строк с определением функции на единицу
 	funcDefinition->countLines++; 
 
 	// Считать параметр с телом искомой функции пустым
 	Text funcBody = {};
 
 	// Найти тело искомой функции 
-	bool isFound = findBodyOfDefinition(programText, headOfDefinitionIndex, &funcBody);
+	bool isBodyFound = findBodyOfDefinition(programText, headOfDefinitionIndex, &funcBody);
 
 	// Если не нашли тело искомой функции вернуть неуспешное значение
-	if (!isFound) return false;
+	if (!isBodyFound) return false;
 	
-	// Увеличить счетчик строк с определением на количество строк в теле искомой фукнции
+	// Записать тело в определние функции
+	//..Увеличить счетчик строк с определением на количество строк в теле искомой фукнции
 	funcDefinition->countLines += funcBody.countLines;
 
-	// Записать строки с телом функции с параметр с определнием функции
+	//..Записать строки с телом функции с параметр с определнием функции
 	for (int i = 0; i < funcBody.countLines; i++)
 		funcDefinition->ptrOnLines[i + 1] = funcBody.ptrOnLines[i];
 
@@ -292,7 +277,6 @@ int main()
 	gets_s(targetFuncName, MAX_LINE_LENGTH);
 
 	printf("Enter the number of lines of program text: ");
-
 	int countLines = 0;
 	scanf("%d", &countLines);
 
@@ -323,10 +307,12 @@ int main()
 	};*/
 	char emptyStr[MAX_LINE_LENGTH + 1];
 	gets_s(emptyStr);
+
 	for (int i = 0; i < countLines; i++)
 	{
 		gets_s(inputText[i]);
 	}
+
 	Text programText = { {}, countLines };
 	for (int i = 0; i < programText.countLines; i++)
 	{
@@ -348,7 +334,7 @@ int main()
 	{
 		strcpy(tmp, funcDefinition.ptrOnLines[i]);
 		ptrTmp = strip(tmp);
-		isOk = isOk || strlen(ptrTmp) != 0; // TODO добавить в трассировку
+		isOk = isOk || *ptrTmp != '\0';
 	}
 	if (!isOk)
 	{

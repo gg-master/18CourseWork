@@ -38,7 +38,7 @@ namespace TestendsWith
 			bool res = endsWith(inputStr, subStr);
 			Assert::AreEqual(expRes, res);
 		}
-		TEST_METHOD(substrNotInString)
+		TEST_METHOD(subStrNotInString)
 		{
 			char inputStr[] = "other words";
 			char subStr[] = "someText";

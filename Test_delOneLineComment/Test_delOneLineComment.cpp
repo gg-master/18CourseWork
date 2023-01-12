@@ -27,7 +27,7 @@ namespace TestdelOneLineComment
 		}
 		TEST_METHOD(oneCommentInEndOfString)
 		{
-			char inputStr[] = "int a = 0;//";
+			char inputStr[] = "int a = 0;// комментарий";
 			char* expPtr = "int a = 0;";
 			char* resPtr = delOneLineComment(inputStr);
 			Assert::IsTrue(strcmp(resPtr, expPtr) == 0);

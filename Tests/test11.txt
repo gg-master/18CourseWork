@@ -1,0 +1,11 @@
+myfunction
+9
+#include <stdio.h>
+
+int main()
+{
+	return 0;
+}
+int myfunction(int x)
+{
+}

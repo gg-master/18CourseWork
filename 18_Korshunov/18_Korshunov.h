@@ -36,7 +36,7 @@ char* stripLeft(char* string, const char stripBy[] = " \t\n\v\f\r");
 */
 char* stripRight(char* string, const char stripBy[] = " \t\n\v\f\r");
 
-/* Удалить перечисленные символы и слева и справа
+/* Удалить перечисленные символы и слева и справа от строки
 	\param[in] string строка из которой удаляют крайние правые и левые символы
 	\param[in] stripBy спсок удаляемых символов справа от строки
 	\return указатель на обновленную строку.
@@ -49,13 +49,6 @@ char* strip(char* string, const char stripBy[] = " \t\n\v\f\r");
 */
 char* delOneLineComment(char* string);
 
-/* Определить, имеется ли слово в строке.
-	\param[in] line - строка в которой ведется поиск слова.
-	\param[in] word - слово, которое ищется в строке.
-	\return флаг, имеется ли слово в строке.
-*/
-bool isWordInLine(const char* line, const char* word);
-
 /* Определить, начинается ли строка с указаной подстроки.
 	\param[in] string - анализируемая строка.
 	\param[in] startsWithStr - подстрока, с которой должная начинаться строка.
@@ -63,7 +56,7 @@ bool isWordInLine(const char* line, const char* word);
 */
 bool startsWith(const char* string, const char* startsWithStr);
 
-/* Определить, заканчивается ли строка с указаной подстроки.
+/* Определить, заканчивается ли строка указаной подстрокой.
 	\param[in] string - анализируемая строка.
 	\param[in] endsWithStr - подстрока, которой должная заканчиваться строка.
 	\return флаг, заканчивается ли анализируемая строка подстрокой.
@@ -74,12 +67,12 @@ bool endsWith(const char* string, const char* endsWithStr);
 * Разделяет строку на подстроки по указанным разделителям.
 * \param [in] string - строка, разбиваемая на подстроки.
 * \param [out] subStrings - массив, в который будут скопированы выделенные подстроки.
-* \param[in] splitBy спсок символов, выступающих в качетсве разделителей между подстроками.
+* \param[in] splitBy спсок символов, выступающих в качестве разделителей между подстроками.
 * \return количество выделенных подстрок из строки.
 */
 int split(const char* string, char subStrings[][MAX_LINE_LENGTH + 1], const char splitBy[] = " \t\n\v\f\r");
 
-/* Проверить, начинается ли подстрока после ключевого слова с указанных начальных и конечных подстрок.
+/* Проверить, начинается и заканчивается ли подстрока после ключевого слова с указанных начальных и конечных подстрок.
 	\param[in] string - анализируемая строка с ключевым словом.
 	\param[in] keyWord - ключевое слово, после которого будет происходить анализ строки.
 	\param[in] startsWithStr - подстрока, с которой должная начинаться строка после ключевого слова. 
@@ -105,7 +98,7 @@ bool isLineHeadOfDefinition(const char* string, const char* funcName);
 int findHeadOfDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1]);
 
 /* Найти тело определения искомой функции.
-	\param[in] programText анализируемая строка
+	\param[in] programText анализируемая строка.
 	\param[in] headOfDefinitionIndex - индекс строки с заголовком определения функции.
 	\param[out] funcBody структура, в которой сохранится тело определния искомой функции.
 	\return удалось ли найти тело определения функции.

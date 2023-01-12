@@ -1,0 +1,15 @@
+myfunction
+13
+#include <stdio.h>
+
+int main()
+{
+	while	( 	myfunction	(	)	)
+	{
+		printf("hello word");
+	}
+}
+int myfunction(int x)
+{
+	return x;
+}

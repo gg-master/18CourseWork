@@ -1,0 +1,12 @@
+myfunction
+10
+#include <stdio.h>
+int myfunction(int x);
+int main()
+{
+	int var = myfunction(10);
+}
+int myfunction(int x)
+{
+	return x;
+}

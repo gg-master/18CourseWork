@@ -9,12 +9,12 @@ bool findFunctionDefinition(const Text programText, const char targetFuncName[MA
 
 bool findFunctionDefinition(const Text programText, const char targetFuncName[MAX_LINE_LENGTH + 1], Text* funcDefinition)
 {
-    Обнулить выходной параметр с определением искомой функии
+    Обнулить выходной параметр с определением искомой функции
     
     Найти индекс строки с заголовком искомой функции
     Если не нашли заголовок искомой функции вернуть неуспешное значение
 
-    Записать заголовок в опредление функции
+    Записать заголовок в определение функции
     
     Считать параметр с телом искомой функции пустым
     Найти тело искомой функции
@@ -26,4 +26,5 @@ bool findFunctionDefinition(const Text programText, const char targetFuncName[MA
     {
         Записать строку из тела функции в определение функции
     }
+    Вернуть успешное значение поиска
 }

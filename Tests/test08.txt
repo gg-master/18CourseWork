@@ -1,0 +1,8 @@
+myfunction
+6
+#include <stdio.h>
+
+int main()
+{
+int myfunction;
+}

@@ -146,5 +146,14 @@ namespace TestisLineHeadOfDefinition
 			bool res = isLineHeadOfDefinition(inputStr, funcName);
 			Assert::AreEqual(expRes, res);
 		}
+		TEST_METHOD(tabsAsWhitespace)
+		{
+			char inputStr[] = "int\tsomeFunction\t(\tbool\targ1,\tfloat\targ2\t)\t";
+			char funcName[] = "someFunction";
+
+			bool expRes = true;
+			bool res = isLineHeadOfDefinition(inputStr, funcName);
+			Assert::AreEqual(expRes, res);
+		}
 	};
 }
